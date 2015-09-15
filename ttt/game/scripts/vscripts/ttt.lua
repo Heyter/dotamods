@@ -211,7 +211,7 @@ function GameMode:ItemSpawn()
           local pos = spawner:GetAbsOrigin()
           local drop = CreateItemOnPositionSync( pos, item )
           local pos_launch = pos+RandomVector(RandomFloat(150,200))
-          item:LaunchLoot(false, 3, 0.75, pos_launch)
+          item:LaunchLoot(false, 0.9, 0.75, pos_launch)
         end
       end
     end

@@ -149,38 +149,47 @@
     "AbilityTextureName"  "item_tombstone"
     "AbilityCastAnimation" "ACT_DOTA_VICTORY"
     //"ScriptFile"          "soul.lua"
+
     "precache"
     {
-      "particle" "particles/econ/courier/courier_faceless_rex/cour_rex_ground_a.vpcf"
+      "Particle" "particles/units/heroes/hero_warlock/warlock_shadow_word_buff_vapor.vpcf"
     }
 
-    
+    "OnSpellStart"{
+      "ApplyModifier"{
+        "Target"       "CASTER"
+        "ModifierName" "soul"
+      } 
+    }
+
+    "OnChannelInterrupted"{
+      "RemoveModifier"{
+        "Target"       "CASTER"
+        "ModifierName" "soul"
+      } 
+    }
+
     "OnChannelSucceeded"{
       "RunScript"
       {
         "ScriptFile" "items.lua"
         "Function" "Commune"
       }
+      "RemoveModifier"{
+        "Target"       "CASTER"
+        "ModifierName" "soul"
+      } 
     }
 
-    "OnEquip"{
-      "ApplyModifier"{
-          "Target"       "CASTER"
-          "ModifierName" "modifier_soul"
-      }
-    }
+
 
     "Modifiers"{
-      "modifier_soul"
+      "soul"
       {
-        "Passive" "1"
-        "EffectName" "particles/econ/courier/courier_faceless_rex/cour_rex_ground_a.vpcf"
-        "EffectAttachType" "follow_entity"
+        "EffectName" "particles/units/heroes/hero_warlock/warlock_shadow_word_buff_vapor.vpcf"
+        "EffectAttachType" "follow_origin"
       }
     }
-
-
-
     
     // Stats
     //-------------------------------------------------------------------------------------------------------------
