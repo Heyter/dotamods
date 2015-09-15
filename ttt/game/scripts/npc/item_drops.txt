@@ -1,0 +1,6 @@
+"Drops" 
+{ 
+    "item_gem" "10"
+    "item_dust" "50"
+    "item_flask" "100"
+}

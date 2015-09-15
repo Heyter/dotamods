@@ -131,7 +131,7 @@ function GameMode:OnGameInProgress()
     end)
 
   --countdown
-  countdown = 10
+  local countdown = 10
   Timers:CreateTimer(0.0, -- Start this timer 0 game-time seconds later
     function()
       --DebugPrint("[ttt]", "Countdown:",countdown,"mins left") 
@@ -139,6 +139,7 @@ function GameMode:OnGameInProgress()
       countdown = countdown - 1
       return 60.0 -- Rerun this timer every 60 game-time seconds 
     end)
+    GameMode:ItemSpawner()
 end
 
 -- This function initializes the game mode and is called before anyone loads into the game
