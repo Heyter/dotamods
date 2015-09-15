@@ -1,0 +1,266 @@
+"DOTAAbilities"
+{
+  //Shield
+  "item_example_item"
+  {
+    "ID"              "1836"
+    "AbilityBehavior"       "DOTA_ABILITY_BEHAVIOR_POINT | DOTA_ABILITY_BEHAVIOR_DONT_RESUME_ATTACK"
+    "AbilityUnitTargetTeam"     "DOTA_UNIT_TARGET_TEAM_ENEMY"
+    "AbilityUnitTargetType"     "DOTA_UNIT_TARGET_HERO"
+    "BaseClass"           "item_datadriven"
+    "AbilityCastAnimation"      "ACT_DOTA_DISABLED"
+    "AbilityTextureName"      "item_example_item"
+
+    // Stats
+    //-------------------------------------------------------------------------------------------------------------
+    "AbilityCastRange"        "900"
+    "AbilityCastPoint"        "0.2"
+    "AbilityCooldown"       "13.0"
+
+    // Item Info
+    //-------------------------------------------------------------------------------------------------------------
+    "AbilityManaCost"       "100"
+    "ItemCost"            "750"
+    "ItemInitialCharges"      "0"
+    "ItemDroppable"         "1"
+    "ItemSellable"          "1"
+    "ItemRequiresCharges"     "0"
+    "ItemShareability"        "ITEM_NOT_SHAREABLE"
+    "ItemDeclarations"        "DECLARE_PURCHASES_TO_TEAMMATES | DECLARE_PURCHASES_TO_SPECTATORS"
+    
+    "MaxUpgradeLevel"       "1"
+    "ItemBaseLevel"         "1"
+    
+    "precache"
+    {
+      "particle"              "particles/frostivus_herofx/queen_shadow_strike_linear_parent.vpcf"
+      "particle_folder"       "particles/test_particle"
+      "soundfile"             "soundevents/game_sounds_heroes/game_sounds_abaddon.vsndevts"
+    }
+    "OnSpellStart"
+    {
+      "LinearProjectile"
+      {
+        "EffectName"      "particles/frostivus_herofx/queen_shadow_strike_linear_parent.vpcf"
+        "MoveSpeed"       "%speed"
+        //"StartPosition"   "attach_attack1"
+        "FixedDistance"   "%distance"
+        "StartRadius"     "%radius"
+        "EndRadius"       "%radius"
+        "TargetTeams"     "DOTA_UNIT_TARGET_TEAM_ENEMY"
+        "TargetTypes"     "DOTA_UNIT_TARGET_HERO"
+        "TargetFlags"     "DOTA_UNIT_TARGET_FLAG_NONE"
+        "HasFrontalCone"    "0"
+        "ProvidesVision"    "0"
+        "VisionRadius"      "0"
+      }
+      "FireSound"
+      {
+        "EffectName"    "Hero_Abaddon.AphoticShield.Cast"
+        "Target"        "CASTER"
+      }
+      "ApplyModifier"
+      {
+        "Target"      "CASTER"
+        "ModifierName"  "modifier_item_shield"
+      }
+    }
+    
+    "OnProjectileHitUnit"
+    {     
+      "DeleteOnHit" "0"
+      "Damage"
+      {
+        "Target"      "TARGET"
+        "Type"    "DAMAGE_TYPE_PURE"
+        "Damage"  "%damage"
+      }
+    }
+    
+    "Modifiers"
+    {
+      "modifier_item_shield"
+      {
+        "EffectName"    "particles/test_particle/damage_immunity.vpcf"
+        "EffectAttachType"  "follow_origin"
+        "Target"      "CASTER"
+        
+        "Duration" "%duration"
+        "TextureName" "abaddon_aphotic_shield"
+        "Properties"
+        {
+          "MODIFIER_PROPERTY_INCOMING_DAMAGE_PERCENTAGE"    "%damage_reduction"
+        }
+      }
+    }
+    
+    // Special  
+    //-------------------------------------------------------------------------------------------------------------
+    "AbilitySpecial"
+    {
+      "01"
+      {
+        "var_type"        "FIELD_FLOAT"
+        "duration"        "4.0"
+      }
+      
+      "02"
+      {
+        "var_type"        "FIELD_INTEGER"
+        "damage_reduction"    "-50"
+      }
+      "03"
+      {
+        "var_type"        "FIELD_INTEGER"
+        "radius"          "150"
+      }
+      "04"
+      {
+        "var_type"        "FIELD_INTEGER"
+        "speed"           "1800"
+      }
+      "05"
+      {
+        "var_type"        "FIELD_FLOAT"
+        "distance"        "900"
+      }
+      "06"
+      {
+        "var_type"        "FIELD_INTEGER"
+        "damage"          "125"
+      }
+    }
+  }
+
+
+//=================================================================================================================
+// Soul
+//=================================================================================================================
+  "item_soul"
+  {
+    // General
+    //-------------------------------------------------------------------------------------------------------------
+    "ID" "1100"
+    "AbilityName"         "item_soul"
+    "AbilityBehavior"     "DOTA_ABILITY_BEHAVIOR_NO_TARGET | DOTA_ABILITY_BEHAVIOR_CHANNELLED | DOTA_ABILITY_BEHAVIOR_DONT_RESUME_ATTACK"
+    "Model"               "models/creeps/neutral_creeps/n_creep_ghost_b/n_creep_ghost_b.vmdl"
+    "PingOverrideText"    "Soul Here"
+    "BaseClass"           "item_datadriven"
+    "AbilityTextureName"  "item_tombstone"
+    "AbilityCastAnimation" "ACT_DOTA_VICTORY"
+    //"ScriptFile"          "soul.lua"
+    "precache"
+    {
+      "particle" "particles/econ/courier/courier_faceless_rex/cour_rex_ground_a.vpcf"
+    }
+
+    
+    "OnChannelSucceeded"{
+      "RunScript"
+      {
+        "ScriptFile" "items.lua"
+        "Function" "Commune"
+      }
+    }
+
+    "OnEquip"{
+      "ApplyModifier"{
+          "Target"       "CASTER"
+          "ModifierName" "modifier_soul"
+      }
+    }
+
+    "Modifiers"{
+      "modifier_soul"
+      {
+        "Passive" "1"
+        "EffectName" "particles/econ/courier/courier_faceless_rex/cour_rex_ground_a.vpcf"
+        "EffectAttachType" "follow_entity"
+      }
+    }
+
+
+
+    
+    // Stats
+    //-------------------------------------------------------------------------------------------------------------
+    "AbilityCastRange"        "100"
+    "AbilityCastPoint"        "0.0"
+    "AbilityChannelTime"      "4.0"
+    
+    // Item Info
+    //-------------------------------------------------------------------------------------------------------------
+    "ItemCost"                "0"
+    "ItemPurchasable"         "0"
+    "ItemShopTags"            "consumable"
+    //"ItemQuality"             "consumable"
+    "ItemStackable"           "0"
+    "ItemShareability"        "ITEM_FULLY_SHAREABLE"
+    "ItemPermanent"           "1"
+    //"ItemInitialCharges"      ""
+    "ItemCastOnPickup"        "0"
+    "ItemKillable"            "0"
+
+  }
+
+
+//=================================================================================================================
+// Scanner
+//=================================================================================================================
+  "item_scanner"
+  {
+    // General
+    //-------------------------------------------------------------------------------------------------------------
+    "ID" "1101"
+    "AbilityName"         "item_scanner"
+    "AbilityBehavior"     "DOTA_ABILITY_BEHAVIOR_NO_TARGET | DOTA_ABILITY_BEHAVIOR_CHANNELLED | DOTA_ABILITY_BEHAVIOR_DONT_RESUME_ATTACK"
+    "Model"               "models/creeps/neutral_creeps/n_creep_ghost_b/n_creep_ghost_b.vmdl"
+    "PingOverrideText"    "Scanner Here"
+    "AbilityCooldown"     "30"
+    "BaseClass"           "item_datadriven"
+    "AbilityTextureName"  "item_gem"
+    "AbilityCastAnimation" "ACT_DOTA_CHANNEL_ABILITY(4)"
+
+    
+    "OnChannelSucceeded"{
+      "RunScript"
+      {
+        "ScriptFile" "items.lua"
+        "Function" "Scanner"
+      }
+    }
+
+
+    "Modifiers"{
+      "modifier_soul"
+      {
+        "Passive" "1"
+        "EffectName" "particles/econ/courier/courier_faceless_rex/cour_rex_ground_a.vpcf"
+        "EffectAttachType" "follow_entity"
+      }
+    }
+
+
+
+    
+    // Stats
+    //-------------------------------------------------------------------------------------------------------------
+    "AbilityCastRange"        "100"
+    "AbilityCastPoint"        "0.0"
+    "AbilityChannelTime"      "2.0"
+    
+    // Item Info
+    //-------------------------------------------------------------------------------------------------------------
+    "ItemCost"                "0"
+    "ItemPurchasable"         "0"
+    //"ItemShopTags"            "consumable"
+    //"ItemQuality"             "consumable"
+    "ItemStackable"           "0"
+    "ItemShareability"        "NOT_SHAREABLE"
+    "ItemPermanent"           "1"
+    //"ItemInitialCharges"      ""
+    "ItemCastOnPickup"        "0"
+    "ItemKillable"            "0"
+
+  }
+}

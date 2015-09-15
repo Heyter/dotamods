@@ -1,0 +1,1 @@
+DETECTIVE_NUMBER = 4 --number of players required for a detective to spawn

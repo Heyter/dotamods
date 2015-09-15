@@ -1,0 +1,2 @@
+- Noya and Idle for UI help on moddota.com
+- Barebones (https://github.com/bmddota/barebones) by bmd

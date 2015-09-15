@@ -1,0 +1,21 @@
+# Cache crap that Valve autogenerates
+*.bin
+
+# Compiled formats
+*.vpcf_c
+*.vtex_c
+*.vsndevts_c
+*.vmat_c
+*.vjs_c
+*.vxml_c
+*.vcss_c
+
+# Commit panorama compiled textures
+
+# Map files
+*.vpk
+
+# Map overviews
+
+# Github dump
+*.stackdump
