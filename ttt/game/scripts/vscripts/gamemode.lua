@@ -92,6 +92,7 @@ function GameMode:OnHeroInGame(hero)
   hero:AddItem(item)
   local item = CreateItem("item_phase_boots", hero, hero)
   hero:AddItem(item)
+  hero:SetAbilityPoints(0)
 
   
   hero:AddNewModifier( nil, nil, 'modifier_invulnerable', {} ) 

@@ -239,10 +239,7 @@
         "EffectAttachType" "follow_entity"
       }
     }
-
-
-
-    
+   
     // Stats
     //-------------------------------------------------------------------------------------------------------------
     "AbilityCastRange"        "100"
@@ -263,4 +260,172 @@
     "ItemKillable"            "0"
 
   }
+
+
+//=================================================================================================================
+// Invis
+//=================================================================================================================
+
+"item_sneak"
+  {
+    // General
+    "ID" "1102"
+    "AbilityName"         "item_sneak"
+    //-------------------------------------------------------------------------------------------------------------
+    "BaseClass"       "item_datadriven"
+    "AbilityBehavior"       "DOTA_ABILITY_BEHAVIOR_NO_TARGET | DOTA_ABILITY_BEHAVIOR_IMMEDIATE | DOTA_ABILITY_BEHAVIOR_IGNORE_CHANNEL"
+    "AbilityTextureName"      "item_smoke_of_deceit"
+
+    // Time   
+    //-------------------------------------------------------------------------------------------------------------
+    "AbilityCooldown"       "20.0"
+    "AbilityCastPoint"        "0.0"
+    
+    // Cost
+    //-------------------------------------------------------------------------------------------------------------
+    "AbilityManaCost"       "0.0"
+
+    // Item Info
+    //-------------------------------------------------------------------------------------------------------------
+    "ItemCost"                "0"
+    "ItemPurchasable"         "0"
+    //"ItemShopTags"            "consumable"
+    //"ItemQuality"             "consumable"
+    "ItemStackable"           "1"
+    "ItemShareability"        "NOT_SHAREABLE"
+    "ItemPermanent"           "1"
+    "ItemInitialCharges"      "3"
+    "ItemCastOnPickup"        "0"
+    "ItemKillable"            "0"
+    
+      // Special
+    //-------------------------------------------------------------------------------------------------------------
+    "AbilitySpecial"
+    {
+      "01"
+      {
+        "var_type"          "FIELD_FLOAT"
+        "duration"          "20.0"
+      }
+      "02"
+      {
+        "var_type"          "FIELD_FLOAT"
+        "fade_time"         "0.6"
+      }
+      "03"
+      {
+        "var_type"          "FIELD_INTEGER"
+        "move_speed_bonus_pct"    "11"
+      }
+    }
+  
+    "precache"
+    {
+      "particle"  "particles/units/heroes/hero_clinkz/clinkz_windwalk.vpcf"
+      "soundfile" "soundevents/game_sounds_heroes/game_sounds_clinkz.vsndevts"
+    }
+  
+    "OnSpellStart"
+    {
+      "FireEffect"
+      {
+        "EffectName"    "particles/units/heroes/hero_clinkz/clinkz_windwalk.vpcf"
+        "EffectAttachType"  "attach_origin"
+        "Target"      "CASTER"
+      }
+  
+      "FireSound"
+      {
+        "Target"    "CASTER"
+        "EffectName"  "Hero_Clinkz.WindWalk"
+      }
+  
+      "ApplyModifier"
+      {
+        "Target"    "CASTER"
+        "ModifierName"  "modifier_wind_walk_fade"
+        "Duration"    "%fade_time"
+      }
+    }
+  
+    "Modifiers"
+    {
+      "modifier_wind_walk_fade"
+      {
+        "IsHidden"      "1"
+        "EffectName"    "particles/generic_hero_status/status_invisibility_start.vpcf"
+        "EffectAttachType"  "follow_origin"
+  
+        "OnDestroy"
+        {
+          "ApplyModifier"
+          {
+            "Target"    "CASTER"
+            "ModifierName"  "modifier_wind_walk"
+            "Duration"    "%duration"
+          }
+          "ApplyModifier"
+          {
+            "Target"    "CASTER"
+            "ModifierName"  "modifier_invisible"
+            "Duration"    "%duration"
+          }
+        }
+      }
+  
+      "modifier_wind_walk"
+      {
+        "OnAttackLanded"
+        {
+          "RemoveModifier"
+          {
+            "Target"    "CASTER"
+            "ModifierName"  "modifier_wind_walk"
+          }
+          "RemoveModifier"
+          {
+            "Target"    "CASTER"
+            "ModifierName"  "modifier_invisible"
+          }
+        }
+  
+        "OnAbilityExecuted"
+        {
+          "RemoveModifier"
+          {
+            "Target"    "CASTER"
+            "ModifierName"  "modifier_wind_walk"
+          }
+          "RemoveModifier"
+          {
+            "Target"    "CASTER"
+            "ModifierName"  "modifier_invisible"
+          }
+        }
+  
+        "States"
+        {
+          "MODIFIER_STATE_INVISIBLE"  "MODIFIER_STATE_VALUE_ENABLED" 
+        }
+  
+        "OnDestroy"
+        {
+          "RemoveModifier"
+          {
+            "Target"
+            {
+              "Center"  "CASTER"
+              "Flags"   "DOTA_UNIT_TARGET_FLAG_DEAD"
+            }
+            "ModifierName"  "modifier_invisible"
+          }
+        }
+      }
+    }
+  }
+  
+
+//============
+//end of file
+//============
 }

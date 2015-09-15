@@ -36,7 +36,7 @@ end
 
 -- Disable hero kills 
 function GameMode:RemoveKill(filterTable)
-  --DebugPrintTable(filterTable)
+  DebugPrintTable(filterTable)
   local herodamaged = EntIndexToHScript(filterTable.entindex_victim_const)
   local playerdamaged = herodamaged:GetPlayerID()
   local attacker = EntIndexToHScript(filterTable.entindex_attacker_const)
@@ -173,6 +173,10 @@ function GameMode:AssignRoles()
 
   for i, v in pairs(TTEAM) do 
     DebugPrint("[ttt]", "T",i, v) 
+    local item = CreateItem("item_sneak", hero, hero)
+    local player = PlayerResource:GetPlayer(v)
+    local hero = player:GetAssignedHero()
+    hero:AddItem(item) 
     Say(PlayerResource:GetPlayer(v), "I am a Traitor with team: "..GameMode:GetTNames(), true) 
     Say(PlayerResource:GetPlayer(v), "Use /t to talk with other traitors", true) 
   end
@@ -207,7 +211,7 @@ function GameMode:ItemSpawn()
           local pos = spawner:GetAbsOrigin()
           local drop = CreateItemOnPositionSync( pos, item )
           local pos_launch = pos+RandomVector(RandomFloat(150,200))
-          item:LaunchLoot(false, 0, 0.75, pos_launch)
+          item:LaunchLoot(false, 3, 0.75, pos_launch)
         end
       end
     end
