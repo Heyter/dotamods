@@ -243,7 +243,7 @@
     "Modifiers"{
       "modifier_soul"
       {
-        "Passive" "1"
+        "Passive" "0"
         "EffectName" "particles/econ/courier/courier_faceless_rex/cour_rex_ground_a.vpcf"
         "EffectAttachType" "follow_entity"
       }

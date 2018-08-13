@@ -1,7 +1,7 @@
 ToDo:
 ===
 **High Priority**
-
+- Fix player 1
 
 **Medium Priority**
 - Rounds (decide if reset heroes, bugh hard work, might need to rework code and do it properly)

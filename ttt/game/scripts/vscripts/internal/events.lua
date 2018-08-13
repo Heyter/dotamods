@@ -64,7 +64,8 @@ function GameMode:_OnEntityKilled( keys )
     DebugPrint("KILLED, KILLER: " .. killedUnit:GetName() .. " -- " .. killerEntity:GetName())
     
     --ttt end condition
-    local endcondition = GameMode:EndCondition() 
+    GameMode:EndCondition() 
+    local endcondition = false--GameMode:EndCondition() 
     if endcondition then
       GameRules:SetCustomVictoryMessageDuration(10.0)
       GameRules:SetSafeToLeave( true )

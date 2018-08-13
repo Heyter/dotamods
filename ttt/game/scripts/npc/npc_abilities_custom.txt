@@ -6,7 +6,35 @@
 // TTT Abilities
 //-------------------
   
+  "ward_heal"
+  {
+    "AbilityBehavior"     "DOTA_ABILITY_BEHAVIOR_PASSIVE"
+    "BaseClass"           "ability_datadriven"
+    "AbilityTextureName"            "rubick_empty1"
+    "MaxLevel"                      "1"
+    
+    "Modifiers"
+    {
+      "modifier_healing_aura"
+      {
+        {
+          "Passive" "1"       //Apply as soon as the spell is learned
+          "IsHidden"    "1"   //Don't show the aura applier
 
+          "Aura"        "armor_aura_effect"
+          "Aura_Radius" "400"
+          "Aura_Teams"  "DOTA_UNIT_TARGET_TEAM_BOTH"
+          "Aura_Types"  "DOTA_UNIT_TARGET_HERO | DOTA_UNIT_TARGET_BASIC"
+          "Aura_Flags"  "DOTA_UNIT_TARGET_FLAG_MAGIC_IMMUNE_ENEMIES"
+          "Aura_ApplyToCaster" "0"   // Not Apply to Self, default is 1
+          "States"
+          {
+              "MODIFIER_PROPERTY_HEALTH_REGEN_PERCENTAGE" "1"
+          }
+        }
+      }
+    }
+  }
 
 //-------------------
 // Dummy stuff

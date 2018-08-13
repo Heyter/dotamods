@@ -6,6 +6,8 @@ TTEAM= {}
 ITEAM= {}
 DTEAM= {}
 DEAD= {}
+CURRENT_ROUND = 0
+BETWEEN_ROUNDS = true
 
 
 --[[== ttt libraries ==]]--
@@ -21,107 +23,65 @@ require('ttt_chatfilter')
 require('ttt_config')
 
 
---[[== Death Fnctions ==]]--
-
-
---Disable gold gain from hero kills (short term)
-function GameMode:NoHeroGold(filterTable)
-  if filterTable["reason_const"] == DOTA_ModifyGold_HeroKill then
-    filterTable["gold"] = 0
-    return true
-  end
-  --Otherwise use normal logic
-  return false
-end
-
--- Disable hero kills 
-function GameMode:RemoveKill(filterTable)
-  DebugPrintTable(filterTable)
-  local herodamaged = EntIndexToHScript(filterTable.entindex_victim_const)
-  local playerdamaged = herodamaged:GetPlayerID()
-  local attacker = EntIndexToHScript(filterTable.entindex_attacker_const)
-  local attackerid = attacker:GetPlayerID()
-  if attackerid ~= playerdamaged then
-    PLAYERLIST[attackerid].lasthit = playerdamaged
-  end
-  --DebugPrintTable(PLAYERLIST)
-  if herodamaged:GetHealth() < filterTable.damage then
-    DebugPrint("[ttt]kill info: Killed" ,playerdamaged,"killer", attackerid)
-    herodamaged:ForceKill(false)
-  end
-  return true
-end
-
--- Set Death Causer
-function GameMode:CauseOfDeath()
-  --PLAYERLIST[playerdamaged].causeofdeath = damagingAbility:GetName()
-  --local killedUnit = EntIndexToHScript( keys.entindex_killed )
-  --killerEntity = EntIndexToHScript( keys.entindex_attacker )
-end
-
--- Set Player to dead team and drop soul
-function GameMode:PlayerDied(killedUnit)
-  --drop soul
-  local newItem = CreateItem( "item_soul", killedUnit, killedUnit )
-  newItem:SetPurchaser( killedUnit )
-  local pos = killedUnit:GetAbsOrigin()
-  local drop = CreateItemOnPositionSync( pos, newItem )
-  --dead message
-  local player = killedUnit:GetOwner()
-  local playerid = player:GetPlayerID()
-  local hero = player:GetAssignedHero()
-  Say(player, "You can chat to other dead players using /d", true)
-  PlayerSay:SendConfig(player, true, false)
-  GameMode:AddToDead(playerid)
-  -- give dead player vision (needs work)
-  AddFOWViewer(player:GetTeam(), hero:GetOrigin(),  20000.0,  600.0, false)
-end
-
--- Game End Kill Condition
-function GameMode:EndCondition()
-  local twin = true
-  local iwin = true
-  --check if all T is dead
-  for i,v in pairs(TTEAM) do
-    local player = PlayerResource:GetPlayer(v)
-    local hero = player:GetAssignedHero()
-    if hero:IsAlive() then
-      iwin = false
-    end
-  end
-
-  for i,v in pairs(DTEAM) do
-    local player = PlayerResource:GetPlayer(v)
-    local hero = player:GetAssignedHero()
-    if hero:IsAlive() then
-      twin = false
-    end
-  end
-
-  for i,v in pairs(ITEAM) do
-    local player = PlayerResource:GetPlayer(v)
-    local hero = player:GetAssignedHero()
-    if hero:IsAlive() then
-      twin = false
-    end
-  end
-
-  if iwin then
-    DebugPrint("[ttt]", "I win the game") 
-    GameRules:SetCustomVictoryMessage("Innocents Win")
-    return "iwin"
-  elseif twin then
-    DebugPrint("[ttt]", "T win the game") 
-    GameRules:SetCustomVictoryMessage("Terrorists Win")
-    return "twin"
-  else
-    return nil
-  end
-end
-
-
 --[[== Game Start Functions ==]]--
 
+
+-- Reset Game
+function GameMode:ResetGame()
+  BETWEEN_ROUNDS = true
+  CURRENT_ROUND = CURRENT_ROUND +1
+  
+  -- Resetting teams
+  PLAYERLIST = {}
+  TTEAM= {}
+  ITEAM= {}
+  DTEAM= {}
+  DEAD= {}
+
+  -- Resetting heroes
+  local heroes = HeroList:GetAllHeroes()
+  for _, hero in pairs(heroes) do
+    -- Remove all items
+    for i=0,6 do
+      local item = hero:GetItemInSlot(i)
+      hero:RemoveItem(item)
+    end
+
+    -- Respawn all heroes
+    -- if hero:IsAlive() then hero:ForceKill(false) end
+    hero:RespawnUnit()
+    hero:Hold()
+
+    -- Give heroes default items
+    local item = CreateItem("item_example_item", hero, hero)
+    hero:AddItem(item)
+    local item = CreateItem("item_ghost", hero, hero)
+    hero:AddItem(item)
+    local item = CreateItem("item_phase_boots", hero, hero)
+    hero:AddItem(item)
+  end
+
+  -- Resetting Map
+  local items = Entities:FindAllByClassname("dota_item_drop")
+  for _, item in pairs(items) do
+    item:RemoveSelf()
+  end
+
+
+  -- Allow all players to speak again
+  for i, v in pairs(PLAYERLIST) do
+    PlayerSay:SendConfig(i, true, true)
+  end
+
+  -- Assign Roles for new round round
+  GameMode:AssignRoles()
+
+  -- Reset Game End Timer
+  GameMode:GameTimer()
+
+  -- Reset Between rounds
+  BETWEEN_ROUNDS = false
+end
 
 -- Assign roles
 function GameMode:AssignRoles()
@@ -147,6 +107,7 @@ function GameMode:AssignRoles()
     end
   end
   DebugPrintTable(TTEAM)
+
   --If 8 players or more then add detective
   if players > DETECTIVE_NUMBER then
     local randnum = randomnumber()
@@ -185,14 +146,161 @@ end
 -- Initialise Item Spawner
 function GameMode:ItemSpawner()
   GameRules.DropTable = LoadKeyValues("scripts/npc/item_drops.txt")
+  local round = 
   Timers:CreateTimer(0.0, -- Start this timer 0 game-time seconds later
     function()
         DebugPrint("Droping items")
         GameMode:ItemSpawn()
       return SPAWNITEMTIMER -- Rerun this timer every 60 game-time seconds 
     end)
+end
+
+function GameMode:GameTimer()
+
+  --Timers:RemoveTimer(1)
+  --Timers:RemoveTimer()
+
+  Timers:CreateTimer(1,{endTime = 600.0,
+    callback = function()
+      Say(nil,"Game Timed Out, Innocents Win!")
+      GameMode:ResetGame()
+      return nil -- Rerun this timer every 30 game-time seconds 
+    end})
+
+  --countdown
+  local countdown = 10
+  Timers:CreateTimer(2,{endTime = 0.0, -- Start this timer 0 game-time seconds later
+    callback = function()
+      --DebugPrint("[ttt]", "Countdown:",countdown,"mins left") 
+      Say(nil,"Time Remaining: "..countdown.." minutes.",true)
+      countdown = countdown - 1
+      return 60.0 -- Rerun this timer every 60 game-time seconds 
+    end})
+
+end
+
+--[[== Death Fnctions ==]]--
 
 
+--Disable gold gain from hero kills (short term)
+function GameMode:NoHeroGold(filterTable)
+  if filterTable["reason_const"] == DOTA_ModifyGold_HeroKill then
+    filterTable["gold"] = 0
+    return true
+  end
+  --Otherwise use normal logic
+  return false
+end
+
+-- Disable hero kills 
+function GameMode:RemoveKill(filterTable)
+  if BETWEEN_ROUNDS then return true end
+  DebugPrintTable(filterTable)
+  local herodamaged = EntIndexToHScript(filterTable.entindex_victim_const)
+  local playerdamaged = herodamaged:GetPlayerID()
+  local attacker = EntIndexToHScript(filterTable.entindex_attacker_const)
+  local attackerid = attacker:GetPlayerID()
+  if attackerid ~= playerdamaged then
+    PLAYERLIST[attackerid].lasthit = playerdamaged
+  end
+  --DebugPrintTable(PLAYERLIST)
+  if herodamaged:GetHealth() < filterTable.damage then
+    DebugPrint("[ttt]kill info: Killed" ,playerdamaged,"killer", attackerid)
+    herodamaged:ForceKill(true)
+  end
+  return true
+end
+
+-- Set Death Causer
+function GameMode:CauseOfDeath()
+  --PLAYERLIST[playerdamaged].causeofdeath = damagingAbility:GetName()
+  --local killedUnit = EntIndexToHScript( keys.entindex_killed )
+  --killerEntity = EntIndexToHScript( keys.entindex_attacker )
+end
+
+-- Set Player to dead team and drop soul
+function GameMode:PlayerDied(killedUnit)
+  --drop soul
+  local newItem = CreateItem( "item_soul", killedUnit, killedUnit )
+  newItem:SetPurchaser( killedUnit )
+  local pos = killedUnit:GetAbsOrigin()
+  local drop = CreateItemOnPositionSync( pos, newItem )
+  --dead message
+  local player = killedUnit:GetOwner()
+  local playerid = player:GetPlayerID()
+  local hero = player:GetAssignedHero()
+  Say(player, "You can chat to other dead players using /d", true)
+  PlayerSay:SendConfig(player, true, false)
+  GameMode:AddToDead(playerid)
+  -- give dead player vision (needs work)
+  AddFOWViewer(player:GetTeam(), hero:GetOrigin(),  20000.0,  600.0, false)
+end
+
+-- Game End Kill Condition
+function GameMode:EndCondition()
+  if BETWEEN_ROUNDS then return false end
+  local twin = true
+  local iwin = true
+  --check if all T is dead
+  for i,v in pairs(TTEAM) do
+    local player = PlayerResource:GetPlayer(v)
+    local hero = player:GetAssignedHero()
+    if hero:IsAlive() then
+      iwin = false
+    end
+  end
+
+  for i,v in pairs(DTEAM) do
+    local player = PlayerResource:GetPlayer(v)
+    local hero = player:GetAssignedHero()
+    if hero:IsAlive() then
+      twin = false
+    end
+  end
+
+  for i,v in pairs(ITEAM) do
+    local player = PlayerResource:GetPlayer(v)
+    local hero = player:GetAssignedHero()
+    if hero:IsAlive() then
+      twin = false
+    end
+  end
+
+  if iwin then
+    DebugPrint("[ttt]", "I win the game") 
+    Say(nil,"Innocents Win",false)
+    if CURRENT_ROUND == NUMBEROFROUNDS then GameMode:CloseServer() end
+    --wait 5 seconds to reset the game
+    Timers:CreateTimer(5.0, -- end game
+      function()
+        GameMode:ResetGame()
+        return nil -- Rerun this timer every 30 game-time seconds 
+      end)
+    return "iwin"
+
+  elseif twin then
+    DebugPrint("[ttt]", "T win the game")
+    Say(nil,"Terrorists Win",false) 
+    if CURRENT_ROUND == NUMBEROFROUNDS then GameMode:CloseServer() end
+    --wait 5 seconds to reset the game
+    Timers:CreateTimer(5.0, 
+      function()
+        GameMode:ResetGame()
+        return nil 
+      end)
+    return "twin"
+
+  else
+    return nil
+  end
+end
+
+--Close Server
+function GameMode:CloseServer()
+  GameRules:SetCustomVictoryMessage("Server Closing")
+  GameRules:SetCustomVictoryMessageDuration(10.0)
+  GameRules:SetSafeToLeave( true )
+  GameRules:SetGameWinner( killerEntity:GetTeam() )
 end
 
 

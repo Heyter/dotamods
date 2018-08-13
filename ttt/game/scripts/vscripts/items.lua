@@ -21,6 +21,7 @@ function Commune( event )
 		Say(player, "I'm not a detective", true)
 		DebugPrint(PLAYERLIST[ownerID].lasthit)
 	end
+	caster:Hold()
 end
 
 function Scanner( event )
@@ -40,4 +41,5 @@ function Scanner( event )
 			})
 		end	
 	end
+	casterhero:Hold()
 end

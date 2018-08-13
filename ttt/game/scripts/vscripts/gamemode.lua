@@ -86,16 +86,10 @@ function GameMode:OnHeroInGame(hero)
   hero:SetGold(0, false)
 
   -- These lines will create an item and add it to the player, effectively ensuring they start with the item
-  local item = CreateItem("item_example_item", hero, hero)
-  hero:AddItem(item)
-  local item = CreateItem("item_ghost", hero, hero)
-  hero:AddItem(item)
-  local item = CreateItem("item_phase_boots", hero, hero)
-  hero:AddItem(item)
   hero:SetAbilityPoints(0)
 
   
-  hero:AddNewModifier( nil, nil, 'modifier_invulnerable', {} ) 
+  --hero:AddNewModifier( nil, nil, 'modifier_invulnerable', {} ) 
   --[[ --These lines if uncommented will replace the W ability of any hero that loads into the game
     --with the "example_ability" ability
 
@@ -111,36 +105,10 @@ end
 ]]
 function GameMode:OnGameInProgress()
   DebugPrint("[BAREBONES] The game has officially begun")
-  
-  --Assign Players to teams
-  GameMode:AssignRoles()
-  
-  --make heroes vulnerable
-  local heroes = HeroList:GetAllHeroes()
-  for i, hero in pairs(heroes) do
-    hero:RemoveModifierByName( 'modifier_invulnerable' ) 
-  end
-  
-  --timeout
-  Timers:CreateTimer(600.0, -- end game
-    function()
-      DebugPrint("[ttt]", "Countdown End") 
-      GameRules:SetCustomVictoryMessage("Innocents Win")
-      GameRules:SetSafeToLeave( true )
-      GameRules:SetGameWinner( 1 )
-      return nil -- Rerun this timer every 30 game-time seconds 
-    end)
 
-  --countdown
-  local countdown = 10
-  Timers:CreateTimer(0.0, -- Start this timer 0 game-time seconds later
-    function()
-      --DebugPrint("[ttt]", "Countdown:",countdown,"mins left") 
-      Say(nil,"Time Remaining: "..countdown.." minutes.",true)
-      countdown = countdown - 1
-      return 60.0 -- Rerun this timer every 60 game-time seconds 
-    end)
-    GameMode:ItemSpawner()
+  --Assign Players to teams
+  GameMode:ItemSpawner()
+  GameMode:ResetGame()
 end
 
 -- This function initializes the game mode and is called before anyone loads into the game
